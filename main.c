@@ -1,50 +1,43 @@
 #include "./include/raylib.h"
-#include <string.h>
 #include <time.h>
 
 #define BUFFER_LEN 1024
 
-typedef struct {
-	int wwidth;
-	int wheight;
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+
+#define PADDING_X 24
+#define PADDING_Y 24
+
+struct widget_time {
 	time_t time;
+	Rectangle dim;
 	char buf[BUFFER_LEN];
-	size_t buf_len;
-} timer_state;
+};
 
-void handle_resize(timer_state *state) {
-	if (IsWindowResized()) {
-		state -> wwidth = GetScreenWidth();
-		state -> wheight = GetScreenHeight();
-	}
-}
-
-int main(void) {
-
-	timer_state state = {
-		.wwidth = 800,
-		.wheight = 600,
+int main(int argc, char **argv) {
+	struct widget_time central = {
 		.time = time(0),
-		.buf = {0},
-		.buf_len = 0,
+		.dim = {
+			.width = 300,
+			.height = 160,
+			.x = (float) (WINDOW_WIDTH - 300) / 2,
+			.y = (float) (WINDOW_HEIGHT - 160) / 2,
+		}
 	};
 
-	InitWindow(state.wwidth, state.wheight, "Timer");
-	SetWindowState(FLAG_WINDOW_RESIZABLE);
+	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Kanban");
+
 	while (!WindowShouldClose()) {
-
-		// Time Stuff
-		strncpy(state.buf, ctime(&state.time), BUFFER_LEN);
-		state.buf_len = strlen(state.buf);
-		state.time = time(0);
-		handle_resize(&state);
-
+		strftime(central.buf, BUFFER_LEN, "%H-%M", localtime(&central.time));
+		Vector2 text_dim = MeasureTextEx(GetFontDefault(), central.buf, 50, 0);
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
-		DrawText(state.buf, (state.wwidth - state.buf_len) / 2, state.wheight / 2, 20, BLACK);
+		DrawRectangleRec(central.dim, RED);
+		DrawText(central.buf, central.dim.x + text_dim.x * 0.5, central.dim.y + text_dim.y * 0.5, 50, BLACK);
 		EndDrawing();
-
 	}
+
 	CloseWindow();
 	return 0;
 }
