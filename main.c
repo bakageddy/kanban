@@ -1,5 +1,7 @@
 #include "./include/raylib.h"
+#include <limits.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 #define BUFFER_LEN 1024
@@ -16,13 +18,18 @@ const static Color gruvbox_white = (Color) {.r = 212, .g = 190, .b = 152, .a = 2
 
 struct widget_time {
 	int elapsed_secs;
+	int limit_secs;
+	int start_secs;
+	bool starting_screen;
 	Rectangle dim;
 	char buf[BUFFER_LEN];
 };
 
 int main(int argc, char **argv) {
 	struct widget_time central = {
-		.elapsed_secs = 0.0,
+		.elapsed_secs = 0,
+		.limit_secs = 0,
+		.starting_screen = true,
 		.dim = {
 			.width = WINDOW_WIDTH * 0.25,
 			.height =  WINDOW_HEIGHT * 0.30,
@@ -31,12 +38,15 @@ int main(int argc, char **argv) {
 		}
 	};
 
+	InitAudioDevice();
 	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Kanban");
 	SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
 	SetWindowPosition(0, 0);
+	Music game_music = LoadMusicStream("./assets/mixkit-big-thunder-rumble-1297.wav");
+	PlayMusicStream(game_music);
 
 	while (!WindowShouldClose()) {
-
+		UpdateMusicStream(game_music);
 		if (IsWindowResized()) {
 			WINDOW_WIDTH = GetRenderWidth();
 			WINDOW_HEIGHT = GetRenderHeight();
@@ -46,21 +56,56 @@ int main(int argc, char **argv) {
 			central.dim.y = (WINDOW_HEIGHT * 0.35);
 		}
 
-		central.elapsed_secs = GetTime();
-		snprintf(central.buf, BUFFER_LEN, "%02d:%02d", central.elapsed_secs / 60, central.elapsed_secs % 60);
-		size_t len = strspn(central.buf, " ");
+		if (central.starting_screen) {
+			if (IsKeyPressed(KEY_ENTER)) {
+				central.starting_screen = false;
+				central.start_secs = GetTime();
+			}
+			if (IsKeyPressed(KEY_J)) {
+				if (central.limit_secs <= 0) {
+					central.limit_secs = 0;
+				} else {
+					central.limit_secs -= 1;
+				}
+			} else if (IsKeyPressed(KEY_K)) {
+				central.limit_secs += 1;
+				if (central.limit_secs == INT_MAX) {
+					central.limit_secs = INT_MAX;
+				}
+			}
 
-		if (central.elapsed_secs / 60 == 25) {
-			break;
+			if (IsKeyPressedRepeat(KEY_K)) {
+				central.limit_secs += 10;
+			}
+			if (IsKeyPressedRepeat(KEY_J)) {
+				central.limit_secs -= 10;
+				if (central.limit_secs <= 0) {
+					central.limit_secs = 0;
+				}
+			}
+
+			snprintf(
+				central.buf,
+				BUFFER_LEN,
+				"%02d:%02d",
+				central.limit_secs / 60,
+				central.limit_secs % 60
+			);
+		} else {
+			central.elapsed_secs = GetTime() - central.start_secs;
+			snprintf(central.buf, BUFFER_LEN, "%02d:%02d", central.elapsed_secs / 60, central.elapsed_secs % 60);
+			if (central.elapsed_secs == central.limit_secs) {
+				central.starting_screen = true;
+			}
 		}
 
+		size_t len = strspn(central.buf, " ");
 		Vector2 text_dim = MeasureTextEx(
 			GetFontDefault(),
 			central.buf + len, 
 			(WINDOW_WIDTH * 0.04) + (WINDOW_HEIGHT * 0.03),
 			0
 		);
-
 		BeginDrawing();
 		ClearBackground(gruvbox_black);
 
@@ -85,6 +130,8 @@ int main(int argc, char **argv) {
 		EndDrawing();
 	}
 
+	UnloadMusicStream(game_music);
+	CloseAudioDevice();
 	CloseWindow();
 	return 0;
 }
