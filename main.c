@@ -38,10 +38,13 @@ int main(int argc, char **argv) {
 		}
 	};
 
+	Image icon = LoadImageSvg("./assets/kanban.svg", 50, 50);
+
 	InitAudioDevice();
 	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Kanban");
+	SetWindowIcon(icon);
 	SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
-	SetWindowPosition(0, 0);
+
 	Music game_music = LoadMusicStream("./assets/mixkit-big-thunder-rumble-1297.wav");
 	PlayMusicStream(game_music);
 

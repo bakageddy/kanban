@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="kanban.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     showguides="false"
+     inkscape:zoom="1"
+     inkscape:cx="474.5"
+     inkscape:cy="417"
+     inkscape:window-width="1362"
+     inkscape:window-height="741"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <ellipse
+       style="fill:#1d2021;fill-opacity:1;stroke-width:0.264583"
+       id="path35626"
+       cx="108.49736"
+       cy="124.36915"
+       rx="51.454674"
+       ry="51.449627" />
+    <ellipse
+       style="fill:#1d2021;fill-opacity:1;stroke-width:0.264583"
+       id="path36301"
+       cx="117.90868"
+       cy="157.25122"
+       rx="1.6465976"
+       ry="5.3885355" />
+    <ellipse
+       style="fill:#1d2021;fill-opacity:1;stroke-width:0.264583"
+       id="path36303"
+       cx="124.62259"
+       cy="135.89955"
+       rx="3.2112162"
+       ry="0.53130591" />
+    <text
+       xml:space="preserve"
+       style="font-size:25.4675px;line-height:1.25;font-family:'GitLab Mono';-inkscape-font-specification:'GitLab Mono';fill:#fe8010;fill-opacity:1;stroke-width:0.265286"
+       x="93.721832"
+       y="128.92775"
+       id="text88074"
+       transform="scale(0.99735042,1.0026566)"><tspan
+         sodipodi:role="line"
+         id="tspan88072"
+         style="fill:#fe8010;fill-opacity:1;stroke-width:0.265286"
+         x="93.721832"
+         y="128.92775">Kb</tspan></text>
+  </g>
+</svg>
