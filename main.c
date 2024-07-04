@@ -71,6 +71,23 @@ int main(int argc, char **argv) {
 
 	while (!WindowShouldClose()) {
 		UpdateMusicStream(playlist[central.current_song]);
+		if (IsKeyPressed(KEY_H)) {
+			StopMusicStream(playlist[central.current_song]);
+			if (central.current_song - 1 <= 0) {
+				central.current_song = 0;
+			} else {
+				central.current_song--;
+			}
+			central.current_song %= PLAYLIST_LEN;
+			PlayMusicStream(playlist[central.current_song]);
+		}
+
+		if (IsKeyPressed(KEY_L)) {
+			StopMusicStream(playlist[central.current_song]);
+			central.current_song += 1;
+			central.current_song %= PLAYLIST_LEN;
+			PlayMusicStream(playlist[central.current_song]);
+		}
 		if (IsWindowResized()) {
 			WINDOW_WIDTH = GetRenderWidth();
 			WINDOW_HEIGHT = GetRenderHeight();
@@ -100,23 +117,6 @@ int main(int argc, char **argv) {
 				}
 			}
 
-			if (IsKeyPressed(KEY_H)) {
-				StopMusicStream(playlist[central.current_song]);
-				if (central.current_song - 1 <= 0) {
-					central.current_song = 0;
-				} else {
-					central.current_song--;
-				}
-				central.current_song %= PLAYLIST_LEN;
-				PlayMusicStream(playlist[central.current_song]);
-			}
-
-			if (IsKeyPressed(KEY_L)) {
-				StopMusicStream(playlist[central.current_song]);
-				central.current_song += 1;
-				central.current_song %= PLAYLIST_LEN;
-				PlayMusicStream(playlist[central.current_song]);
-			}
 
 			if (IsKeyPressedRepeat(KEY_K)) {
 				central.limit_secs += 10;
@@ -140,6 +140,7 @@ int main(int argc, char **argv) {
 			snprintf(central.buf, BUFFER_LEN, "%02d:%02d", central.elapsed_secs / 60, central.elapsed_secs % 60);
 			if (central.elapsed_secs == central.limit_secs) {
 				central.starting_screen = true;
+				central.elapsed_secs = 0;
 			}
 		}
 
