@@ -3,33 +3,53 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <glob.h>
 
 #define BUFFER_LEN 1024
 
-static int WINDOW_WIDTH = 800;
-static int WINDOW_HEIGHT = 600;
-
 #define PADDING_X 24
 #define PADDING_Y 24
+
+#define PLAYLIST_LEN 9
+
+static int WINDOW_WIDTH = 800;
+static int WINDOW_HEIGHT = 600;
 
 const static Color gruvbox_red = (Color) {.r = 251,.g = 73,.b = 51,.a = 255};
 const static Color gruvbox_black = (Color) {.r = 29, .g = 32, .b = 33, .a = 255};
 const static Color gruvbox_white = (Color) {.r = 212, .g = 190, .b = 152, .a = 255};
 
+static Music playlist[PLAYLIST_LEN] = {0};
+
 struct widget_time {
 	int elapsed_secs;
 	int limit_secs;
 	int start_secs;
+	size_t current_song;
 	bool starting_screen;
 	Rectangle dim;
 	char buf[BUFFER_LEN];
 };
+
+void load_playlist(void) {
+	playlist[0] = LoadMusicStream("./assets/mixkit-game-level-music-689.wav");
+	playlist[1] = LoadMusicStream("./assets/mixkit-big-thunder-rumble-1297.wav");
+	playlist[2] = LoadMusicStream("./assets/mixkit-waterfall-ambience-2513.wav");
+	playlist[3] = LoadMusicStream("./assets/mixkit-campfire-night-wind-1736.wav");
+	playlist[4] = LoadMusicStream("./assets/mixkit-bubbling-volcano-lava-2440.wav");
+	playlist[5] = LoadMusicStream("./assets/mixkit-heavy-storm-rain-loop-2400.wav");
+	playlist[6] = LoadMusicStream("./assets/mixkit-forest-with-birds-singing-1235.wav");
+	playlist[7] = LoadMusicStream("./assets/mixkit-forest-ambience-with-croaking-frogs-1241.wav");
+	playlist[8] = LoadMusicStream("./assets/mixkit-crickets-and-insects-in-the-wild-ambience-39.wav");
+}
 
 int main(int argc, char **argv) {
 	struct widget_time central = {
 		.elapsed_secs = 0,
 		.limit_secs = 0,
 		.starting_screen = true,
+		.start_secs = 0,
+		.current_song = 0,
 		.dim = {
 			.width = WINDOW_WIDTH * 0.25,
 			.height =  WINDOW_HEIGHT * 0.30,
@@ -43,13 +63,14 @@ int main(int argc, char **argv) {
 	InitAudioDevice();
 	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Kanban");
 	SetWindowIcon(icon);
-	SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-	Music game_music = LoadMusicStream("./assets/mixkit-big-thunder-rumble-1297.wav");
-	PlayMusicStream(game_music);
+	load_playlist();
+	PlayMusicStream(playlist[central.current_song]);
+
 
 	while (!WindowShouldClose()) {
-		UpdateMusicStream(game_music);
+		UpdateMusicStream(playlist[central.current_song]);
 		if (IsWindowResized()) {
 			WINDOW_WIDTH = GetRenderWidth();
 			WINDOW_HEIGHT = GetRenderHeight();
@@ -70,11 +91,31 @@ int main(int argc, char **argv) {
 				} else {
 					central.limit_secs -= 1;
 				}
-			} else if (IsKeyPressed(KEY_K)) {
+			}
+
+			if (IsKeyPressed(KEY_K)) {
 				central.limit_secs += 1;
 				if (central.limit_secs == INT_MAX) {
 					central.limit_secs = INT_MAX;
 				}
+			}
+
+			if (IsKeyPressed(KEY_H)) {
+				StopMusicStream(playlist[central.current_song]);
+				if (central.current_song - 1 <= 0) {
+					central.current_song = 0;
+				} else {
+					central.current_song--;
+				}
+				central.current_song %= PLAYLIST_LEN;
+				PlayMusicStream(playlist[central.current_song]);
+			}
+
+			if (IsKeyPressed(KEY_L)) {
+				StopMusicStream(playlist[central.current_song]);
+				central.current_song += 1;
+				central.current_song %= PLAYLIST_LEN;
+				PlayMusicStream(playlist[central.current_song]);
 			}
 
 			if (IsKeyPressedRepeat(KEY_K)) {
@@ -133,7 +174,9 @@ int main(int argc, char **argv) {
 		EndDrawing();
 	}
 
-	UnloadMusicStream(game_music);
+	for (int i = 0; i < PLAYLIST_LEN; i++) {
+		UnloadMusicStream(playlist[i]);
+	}
 	CloseAudioDevice();
 	CloseWindow();
 	return 0;
