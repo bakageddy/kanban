@@ -31,6 +31,28 @@ struct widget_time {
 	char buf[BUFFER_LEN];
 };
 
+typedef bool (clicked_t)(Rectangle dim);
+
+struct widget_button {
+	char c;
+	Rectangle dim;
+	clicked_t *clicked;
+};
+
+bool button_clicked(Rectangle dim) {
+	if (IsMouseButtonPressed(KEY_RIGHT)) {
+		Vector2 pos = GetMousePosition();
+		return (
+			dim.x <= pos.x 
+			&& pos.x >= dim.x + dim.width
+			&& dim.y <= pos.y
+			&& pos.y >= dim.y + dim.height
+		);
+	} else {
+		return false;
+	}
+}
+
 void load_playlist(void) {
 	playlist[0] = LoadMusicStream("./assets/mixkit-game-level-music-689.wav");
 	playlist[1] = LoadMusicStream("./assets/mixkit-big-thunder-rumble-1297.wav");
@@ -58,6 +80,22 @@ int main(int argc, char **argv) {
 		}
 	};
 
+	struct widget_button left_button = {
+		.c = '<',
+		.clicked = button_clicked,
+		.dim = (Rectangle) {
+			.x = 20,
+			.y = (float) WINDOW_HEIGHT / 2,
+			.height = 50,
+			.width = 60,
+		}
+	};
+
+	struct widget_button right_button = {
+		.c = '>',
+		.clicked = button_clicked,
+	};
+
 	Image icon = LoadImageSvg("./assets/kanban.svg", 50, 50);
 
 	InitAudioDevice();
@@ -71,6 +109,14 @@ int main(int argc, char **argv) {
 
 	while (!WindowShouldClose()) {
 		UpdateMusicStream(playlist[central.current_song]);
+
+		if (left_button.clicked(left_button.dim)) {
+			StopMusicStream(playlist[central.current_song]);
+			central.current_song += 1;
+			central.current_song %= PLAYLIST_LEN;
+			PlayMusicStream(playlist[central.current_song]);
+		}
+
 		if (IsKeyPressed(KEY_H)) {
 			StopMusicStream(playlist[central.current_song]);
 			if (central.current_song - 1 <= 0) {
@@ -163,6 +209,8 @@ int main(int argc, char **argv) {
 			gruvbox_red
 		);
 		#endif /* ifdef DEBUG_MODE */
+
+		DrawRectangleRec(left_button.dim, gruvbox_white);
 
 		DrawText(
 			central.buf,
